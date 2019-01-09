@@ -1,12 +1,13 @@
 package com.example.entity;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Set;
-
-@Data
+@Setter
+@Getter
 @Entity
 @Table(name = "user")
 @EntityListeners(AuditingEntityListener.class)

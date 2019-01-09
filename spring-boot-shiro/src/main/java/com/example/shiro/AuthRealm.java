@@ -18,35 +18,30 @@ import java.util.Set;
 public class AuthRealm extends AuthorizingRealm {
     @Autowired
     private UserService userService;
+
     //授权
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         //从session获取用户
         User user = (User) principalCollection.fromRealm(this.getClass().getName()).iterator().next();
-        List<String> permissonList = new ArrayList<>();
+        // List<String> permissonList = new ArrayList<>();
+        SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
         Set<Role> roles = user.getRoles();
-        if(!roles.isEmpty()){
-            for(Role role:roles){
-                Set<Permission> permissions = role.getPermissions();
-                if(!permissions.isEmpty()){
-                    for(Permission permission:permissions){
-                        permissonList.add(permission.getName());
-                    }
-
-                }
+        for (Role role : roles) {
+            authorizationInfo.addRole(role.getRname());
+            for (Permission permission : role.getPermissions()) {
+                authorizationInfo.addStringPermission(permission.getName());
             }
         }
-        SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
-        info.addStringPermissions(permissonList);
-        return info;
+        return authorizationInfo;
     }
 
     //认证登录
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken)token;
+        UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken) token;
         String username = usernamePasswordToken.getUsername();
         User user = userService.getUserByUsername(username);
-        return new SimpleAuthenticationInfo(user,user.getPassword(),this.getClass().getName());
+        return new SimpleAuthenticationInfo(user, user.getPassword(), this.getClass().getName());
     }
 }
