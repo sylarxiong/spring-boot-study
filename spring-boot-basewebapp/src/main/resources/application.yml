@@ -1,2 +1,6 @@
 server:
   port: 9000
+logging:
+  path: /prod/java/logs/spring-boot-basewebapp-2
+  pattern:
+    file: '%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{15} - %msg%n'
