@@ -1,5 +1,6 @@
 package com.example.shiro;
 
+import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
@@ -10,25 +11,33 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Configuration
 public class ShiroConfiguration {
     @Bean("shiroFilter")
     public ShiroFilterFactoryBean shiroFilter(@Qualifier("securityManager") SecurityManager manager) {
         ShiroFilterFactoryBean bean = new ShiroFilterFactoryBean();
+        //自定义filter
+        Map map = new HashMap();
+        map.put("myfilter",new MyFilter());
+        bean.setFilters(map);
         bean.setSecurityManager(manager);
 
-        bean.setLoginUrl("/login");
-        bean.setSuccessUrl("/index");
-        bean.setUnauthorizedUrl("/unauthorized");
+//        bean.setLoginUrl("/login");
+//        bean.setSuccessUrl("/index");
+ //       bean.setUnauthorizedUrl("/unauthorized");
 
         LinkedHashMap<String, String> filterChainDefinition = new LinkedHashMap<>();
-        filterChainDefinition.put("/index", "authc");
-        filterChainDefinition.put("/login", "anon");
-        filterChainDefinition.put("/loginUser", "anon");
-        //filterChainDefinition.put("/hello", "roles[edit]");
-        filterChainDefinition.put("/**", "authc");
+        filterChainDefinition.put("/api/login", "anon");
+        filterChainDefinition.put("/swagger-ui.html", "anon");
+        filterChainDefinition.put("/swagger-resources/**", "anon");
+        filterChainDefinition.put("/v2/api-docs", "anon");
+        filterChainDefinition.put("/webjars/springfox-swagger-ui/**", "anon");
+        filterChainDefinition.put("/druid/**", "anon");
+        filterChainDefinition.put("/**", "myfilter");
         filterChainDefinition.put("/unauthorized/**", "anon");
         bean.setFilterChainDefinitionMap(filterChainDefinition);
 
@@ -45,6 +54,8 @@ public class ShiroConfiguration {
     @Bean("authRealm")
     public AuthRealm authRealm(@Qualifier("credentialMatcher") CredentialMatcher matcher) {
         AuthRealm authRealm = new AuthRealm();
+        //认证信息放缓存里  不设置默认放内存
+        authRealm.setCacheManager(new MemoryConstrainedCacheManager());
         authRealm.setCredentialsMatcher(matcher);
         return authRealm;
     }
