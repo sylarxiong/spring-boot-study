@@ -43,11 +43,18 @@ public class Book2Controller {
 
     @GetMapping("/all")
     public Result getAll() {
-        Client client = elasticsearchTemplate.getClient();
-        SearchRequestBuilder srb = client.prepareSearch("book").setTypes("novel");
-        SearchResponse sr = srb.setQuery(QueryBuilders.matchAllQuery()).execute().actionGet(); // 查询所有
+        //Client client = elasticsearchTemplate.getClient();
+        //SearchRequestBuilder srb = client.prepareSearch("book").setTypes("novel");
+        //SearchResponse sr = srb.setQuery(QueryBuilders.matchAllQuery()).execute().actionGet(); // 查询所有
+        SearchRequestBuilder searchRequestBuilder = elasticsearchTemplate.getClient()
+                .prepareSearch("book")
+                .setTypes("novel")
+                .setQuery(QueryBuilders.matchAllQuery());
+        SearchResponse sr = searchRequestBuilder.get();
         SearchHits hits = sr.getHits();
-        return Result.builder().success().message("查询成功").data(hits).build();
+        List<Map<String, Object>> list = new ArrayList<>();
+        hits.forEach(item -> list.add(item.getSourceAsMap()));
+        return Result.builder().success().message("查询成功").data(list).build();
     }
 
     @PostMapping("/add")
@@ -93,7 +100,7 @@ public class Book2Controller {
                 //注意这个时间 一定要加上.getTime() 否则会报错
                 xContentBuilder.field("publishedDate", book.publishedDate.getTime());
             }
-            if(book.getPrice() != null){
+            if (book.getPrice() != null) {
                 xContentBuilder.field("price", book.price.doubleValue());
             }
             xContentBuilder.endObject();
@@ -109,13 +116,14 @@ public class Book2Controller {
         }
 
     }
+
     @ApiOperation("复合查询")
     @GetMapping("/query")
-    public Result   compoundQuery(@RequestParam(required = false) String bookName,
-                               @RequestParam(required = false) String author,
-                               @RequestParam(required = false) String press,
-                               @RequestParam(required = false, defaultValue = "0") BigDecimal gtPrice,
-                               @RequestParam(required = false) BigDecimal ltPrice) {
+    public Result compoundQuery(@RequestParam(required = false) String bookName,
+                                @RequestParam(required = false) String author,
+                                @RequestParam(required = false) String press,
+                                @RequestParam(required = false, defaultValue = "0") BigDecimal gtPrice,
+                                @RequestParam(required = false) BigDecimal ltPrice) {
         //bool查询
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         if (StringUtils.isNoneBlank(bookName)) {
@@ -140,8 +148,8 @@ public class Book2Controller {
                 .setFrom(0)
                 .setSize(10);
         SearchResponse searchResponse = searchRequestBuilder.get();
-        List<Map<String,Object>> list = new ArrayList<>();
-        searchResponse.getHits().forEach( item->list.add(item.getSourceAsMap()));
+        List<Map<String, Object>> list = new ArrayList<>();
+        searchResponse.getHits().forEach(item -> list.add(item.getSourceAsMap()));
         return Result.builder().success().message("查询成功").data(list).build();
     }
 

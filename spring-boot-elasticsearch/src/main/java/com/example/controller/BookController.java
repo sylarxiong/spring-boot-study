@@ -4,15 +4,9 @@ import com.example.common.NormalException;
 import com.example.common.Result;
 import com.example.dao.BookRepository;
 import com.example.entity.Book;
-import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.querydsl.QuerydslUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 
 @RestController
