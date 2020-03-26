@@ -1,62 +1,49 @@
 package com.example.controller;
 
-import com.example.common.NormalException;
 import com.example.common.Result;
 import com.example.entity.Book;
-import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
-import org.elasticsearch.search.SearchHits;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.query.GetQuery;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import javax.annotation.Resource;
 
 @RestController
 @RequestMapping("/api/template")
 public class Book2Controller {
-    @Autowired
-    private ElasticsearchTemplate elasticsearchTemplate;
+    @Resource
+    private ElasticsearchOperations elasticsearchOperations;
 
     @GetMapping("/get")
     public Result select(@RequestParam String id) {
-        Client client = elasticsearchTemplate.getClient();
-        GetResponse data = client.prepareGet("book", "novel", id).get();
-        return Result.builder().success().message("查询成功").data(data).build();
+        Book person = elasticsearchOperations.queryForObject(GetQuery.getById(id), Book.class);
+        return Result.builder().success().message("查询成功").data(person).build();
     }
+
 
     @GetMapping("/all")
     public Result getAll() {
         //Client client = elasticsearchTemplate.getClient();
         //SearchRequestBuilder srb = client.prepareSearch("book").setTypes("novel");
         //SearchResponse sr = srb.setQuery(QueryBuilders.matchAllQuery()).execute().actionGet(); // 查询所有
-        SearchRequestBuilder searchRequestBuilder = elasticsearchTemplate.getClient()
+        /*SearchRequestBuilder searchRequestBuilder = elasticsearchTemplate.getClient()
                 .prepareSearch("book")
                 .setTypes("novel")
                 .setQuery(QueryBuilders.matchAllQuery());
         SearchResponse sr = searchRequestBuilder.get();
         SearchHits hits = sr.getHits();
         List<Map<String, Object>> list = new ArrayList<>();
-        hits.forEach(item -> list.add(item.getSourceAsMap()));
-        return Result.builder().success().message("查询成功").data(list).build();
-    }
+        hits.forEach(item -> list.add(item.getSourceAsMap()));*/
+       /* SearchQuery searchQuery = QueryBuilders.matchAllQuery();
 
+        elasticsearchOperations.queryForList();*/
+
+        return Result.builder().success().message("查询成功").build();
+    }
+/*
     @PostMapping("/add")
     public Result add(@RequestBody Book book) {
         try {
@@ -152,5 +139,6 @@ public class Book2Controller {
         searchResponse.getHits().forEach(item -> list.add(item.getSourceAsMap()));
         return Result.builder().success().message("查询成功").data(list).build();
     }
+*/
 
 }
