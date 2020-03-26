@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.management.Query;
 
 @RestController
 @RequestMapping("/api/template")
@@ -21,6 +22,7 @@ public class Book2Controller {
     public Result select(@RequestParam String id) {
         Book person = elasticsearchOperations.queryForObject(GetQuery.getById(id), Book.class);
         return Result.builder().success().message("查询成功").data(person).build();
+
     }
 
 
