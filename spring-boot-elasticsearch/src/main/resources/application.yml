@@ -8,5 +8,4 @@ spring:
       max-request-size: 100MB
   data:
       elasticsearch:
-        repositories:
-          enabled: true
+        cluster-nodes: localhost:9300
